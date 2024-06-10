@@ -22,6 +22,7 @@ proc nodeOfClass(n: XmlNode, class: string): seq[XmlNode]=
     if ele.attr("class").containsClass(class):
       result.add ele
   return result
+
 proc buildMetaPinnedRepo(n: XmlNode): TableRef[string, string]=
   result = newTable[string, string]()
   # use the information in `n` to populate the table
@@ -53,7 +54,7 @@ router pinnim:
     var repoInfos = newSeq[TableRef[string, string]]()
     
     # index out of bounds, the container is empty HERE
-    for contentEle in g.nodeOfClass("pinned-item-list-item-content"):
+    for contentEle in g.nodeOfClass("pinned-item-list-item"):
       repoInfos.add(buildMetaPinnedRepo(contentEle))
     
 
