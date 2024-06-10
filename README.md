@@ -1,7 +1,7 @@
 # Pinnim
 pinned repos api made in nim
 
-# Usage
+## Usage
 
 ```
 https://pinnim-production.up.railway.app/(insert github username)
