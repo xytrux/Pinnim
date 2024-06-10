@@ -10,7 +10,7 @@ COPY . /src
 RUN nimble install -y jester
 
 # Compile the Nim application
-RUN nim c -d:release -d:ssl -o:/src/main src/main.nim
+RUN nim c -d:release -d:ssl --mm:orc --threads:off -o:/src/main src/main.nim
 
 # Make port 7777 available to the world outside this container
 EXPOSE 7777

@@ -1,6 +1,7 @@
 import std/[httpclient, strformat, htmlparser, xmltree, strutils, tables]
 import jester, asyncdispatch
 import json
+import times
 
 iterator extractWithTag(x: XmlNode, name:string): XmlNode {.closure.}=
   if x.kind == xnElement:
@@ -51,15 +52,29 @@ proc buildMetaPinnedRepo(n: XmlNode): OrderedTableRef[string, string]=
   result["language"] = language
   return result
 
+type
+  CacheEntry = tuple
+    timeFetched: DateTime
+    html: XmlNode
+
+var cache: Table[string, CacheEntry] = initTable[string, CacheEntry]()
+
 router pinnim:
   get "/@user":
     var user = @"user"
     var client = newHttpClient()
-    let g = parseHtml(client.getContent(fmt"http://github.com/{user}"))
+    var g: XmlNode
+
+    if cache.contains(user):
+      let entry = cache[user]
+      if now() - entry.timeFetched < initDuration(hours=1):
+        g = entry.html
+    if g.isNil:
+      g = parseHtml(client.getContent(fmt"http://github.com/{user}"))
+      cache[user] = (timeFetched: now(), html: g)
 
     var repoInfos = newSeq[OrderedTableRef[string, string]]()
     
-    # index out of bounds, the container is empty HERE
     for contentEle in g.nodeOfClass("pinned-item-list-item"):
       repoInfos.add(buildMetaPinnedRepo(contentEle))
     
