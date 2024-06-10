@@ -1,5 +1,6 @@
 import std/[httpclient, strformat, htmlparser, xmltree, strutils, tables]
 import jester, asyncdispatch
+import json
 
 iterator extractWithTag(x: XmlNode, name:string): XmlNode {.closure.}=
   if x.kind == xnElement:
@@ -62,8 +63,11 @@ router pinnim:
     for contentEle in g.nodeOfClass("pinned-item-list-item"):
       repoInfos.add(buildMetaPinnedRepo(contentEle))
     
+    let repoInfosJson = newJArray()
+    for repoInfo in repoInfos:
+      repoInfosJson.add(%*repoInfo) 
 
-    resp($repoInfos, "application/json")
+    resp($repoInfosJson, "application/json")
 
 proc main() =
   let port      = 7777.Port
