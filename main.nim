@@ -24,8 +24,8 @@ proc nodeOfClass(n: XmlNode, class: string): seq[XmlNode]=
       result.add ele
   return result
 
-proc buildMetaPinnedRepo(n: XmlNode): TableRef[string, string]=
-  result = newTable[string, string]()
+proc buildMetaPinnedRepo(n: XmlNode): OrderedTableRef[string, string]=
+  result = newOrderedTable[string, string]()
   # use the information in `n` to populate the table
 
   let full_name = n.nodeOfClass("Link")[0].attr("href")[1..^1]
@@ -57,7 +57,7 @@ router pinnim:
     var client = newHttpClient()
     let g = parseHtml(client.getContent(fmt"http://github.com/{user}"))
 
-    var repoInfos = newSeq[TableRef[string, string]]()
+    var repoInfos = newSeq[OrderedTableRef[string, string]]()
     
     # index out of bounds, the container is empty HERE
     for contentEle in g.nodeOfClass("pinned-item-list-item"):
