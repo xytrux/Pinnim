@@ -1,7 +1,5 @@
 import std/[httpclient, strformat, htmlparser, xmltree, strutils, tables]
-
-var user = "user"
-var client = newHttpClient()
+import jester, asyncdispatch
 
 iterator extractWithTag(x: XmlNode, name:string): XmlNode {.closure.}=
   if x.kind == xnElement:
@@ -24,8 +22,6 @@ proc nodeOfClass(n: XmlNode, class: string): seq[XmlNode]=
     if ele.attr("class").containsClass(class):
       result.add ele
   return result
-
-let g = parseHtml(client.getContent(fmt"http://github.com/{user}"))
 
 
 proc buildMetaPinnedRepo(n: XmlNode): TableRef[string, string]=
@@ -50,9 +46,14 @@ proc buildMetaPinnedRepo(n: XmlNode): TableRef[string, string]=
   result["language"] = language
   return result
 
-var repoInfos = newSeq[TableRef[string, string]]()
+routes:
+  get "/{user}":
+    var user = @"user"
+    var client = newHttpClient()
+    let g = parseHtml(client.getContent(fmt"http://github.com/{user}"))
+    var repoInfos = newSeq[TableRef[string, string]]()
+    for contentEle in g.nodeOfClass("pinned-item-list-item-content"):
+      repoInfos.add(buildMetaPinnedRepo(contentEle))
+    resp($repoInfos)
 
-for contentEle in g.nodeOfClass("pinned-item-list-item-content"):
-  repoInfos.add(buildMetaPinnedRepo(contentEle))
-  
-echo repoInfos
+runForever()
