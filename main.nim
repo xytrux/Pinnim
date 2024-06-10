@@ -38,9 +38,14 @@ proc buildMetaPinnedRepo(n: XmlNode): TableRef[string, string]=
   result["repo"] = repo.join("")
   result["description"] = description
   result["link"] = fmt"https://github.com/{full_name}"
-  result["stars"] = repo_meta[0].innerText.strip()
+  if len(repo_meta) < 1:
+    result["stars"] = "0"
+  else:
+    result["stars"] = repo_meta[0].innerText.strip()
   if len(repo_meta) < 2:
     result["forks"] = "0"
+  else:
+    result["forks"] = repo_meta[1].innerText.strip()
   result["language_color"] = language_color
   result["language"] = language
   return result
@@ -58,7 +63,7 @@ router pinnim:
       repoInfos.add(buildMetaPinnedRepo(contentEle))
     
 
-    resp($repoInfos)
+    resp($repoInfos, "application/json")
 
 proc main() =
   let port      = 7777.Port
