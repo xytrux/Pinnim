@@ -1,15 +1,20 @@
-FROM nimlang/nim:latest AS builder
+# Start from the latest Nim image
+FROM nimlang/nim:latest
 
-WORKDIR /usr/src
+# Set the working directory in the Docker image
+WORKDIR /src
 
-COPY . ./
+# Copy the current directory contents into the container at /app
+COPY . /src
 
-RUN nimble build -y -d:release
+# Install Jester
+RUN nimble install jester -y
 
-FROM gcr.io/distroless/base-debian12:nonroot
+# Compile the Jester application
+RUN nim c -d:release -d:ssl main.nim
 
-COPY --from=builder /usr/src/main /main
+# Make port 5000 available to the world outside this container
+EXPOSE 7777
 
-CMD ["/main"]
-
-# this may or may not work, I haven't tested it.
+# Run the app when the container launches
+CMD ["./main]
