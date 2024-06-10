@@ -1,4 +1,4 @@
-FROM nim:2.0 AS builder
+FROM nimlang/nim:latest AS builder
 
 WORKDIR /usr/src
 
