@@ -7,7 +7,7 @@ WORKDIR /src
 # Copy the current directory contents into the container at /app
 COPY . /src
 
-RUN nimble install jester
+RUN nimble install -y jester
 
 # Compile the Nim application
 RUN nim c -d:release -d:ssl -o:/src/main src/main.nim
