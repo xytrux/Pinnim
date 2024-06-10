@@ -1,6 +1,6 @@
 import std/[httpclient, strformat, htmlparser, xmltree, strutils, tables]
 
-var user = "xytrux"
+var user = "user"
 var client = newHttpClient()
 
 iterator extractWithTag(x: XmlNode, name:string): XmlNode {.closure.}=
