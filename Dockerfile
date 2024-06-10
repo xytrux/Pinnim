@@ -1,20 +1,17 @@
 # Start from the latest Nim image
 FROM nimlang/nim:latest
 
-# Set the working directory in the Docker image
+# Set the working directory in the container
 WORKDIR /src
 
 # Copy the current directory contents into the container at /app
 COPY . /src
 
-# Install Jester
-RUN nimble install jester -y
+# Compile the Nim application
+RUN nim c -d:release -d:ssl -o:/src/main src/main.nim
 
-# Compile the Jester application
-RUN nim c -d:release -d:ssl src/main.nim
-
-# Make port 5000 available to the world outside this container
+# Make port 7777 available to the world outside this container
 EXPOSE 7777
 
 # Run the app when the container launches
-CMD ["./main]
+CMD ["/src/main"]
