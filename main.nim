@@ -22,8 +22,6 @@ proc nodeOfClass(n: XmlNode, class: string): seq[XmlNode]=
     if ele.attr("class").containsClass(class):
       result.add ele
   return result
-
-
 proc buildMetaPinnedRepo(n: XmlNode): TableRef[string, string]=
   result = newTable[string, string]()
   # use the information in `n` to populate the table
@@ -46,14 +44,26 @@ proc buildMetaPinnedRepo(n: XmlNode): TableRef[string, string]=
   result["language"] = language
   return result
 
-routes:
-  get "/{user}":
+router pinnim:
+  get "/@user":
     var user = @"user"
     var client = newHttpClient()
     let g = parseHtml(client.getContent(fmt"http://github.com/{user}"))
+
     var repoInfos = newSeq[TableRef[string, string]]()
+    
+    # index out of bounds, the container is empty HERE
     for contentEle in g.nodeOfClass("pinned-item-list-item-content"):
       repoInfos.add(buildMetaPinnedRepo(contentEle))
+    
+
     resp($repoInfos)
 
-runForever()
+proc main() =
+  let port      = 7777.Port
+  let settings = newSettings(port=port)
+  var jester    = initJester(pinnim, settings=settings)
+  jester.serve()
+
+when isMainModule:
+  main()
