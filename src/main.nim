@@ -29,27 +29,36 @@ proc buildMetaPinnedRepo(n: XmlNode): OrderedTableRef[string, string]=
   result = newOrderedTable[string, string]()
   # use the information in `n` to populate the table
 
-  let full_name = n.nodeOfClass("Link")[0].attr("href")[1..^1]
-  let repo = full_name.split("/")[1]
-  let description = n.nodeOfClass("pinned-item-desc")[0].innerText.strip()
+  let linkNodes = n.nodeOfClass("Link")
+  let full_name = if linkNodes.len > 0: linkNodes[0].attr("href")[1..^1] else: ""
+  let repo = if full_name != "": full_name.split("/")[1] else: ""
+  let descNodes = n.nodeOfClass("pinned-item-desc")
+  let description = if descNodes.len > 0: descNodes[0].innerText.strip() else: ""
   let repo_meta = n.nodeOfClass("pinned-item-meta")
-  let language = n.nodeOfClass("d-inline-block")[0].innerText.strip()
-  let language_color = n.nodeOfClass("repo-language-color")[0].attr("style").split(":")[1].strip()
 
-  result["full_name"] = full_name
-  result["repo"] = repo.join("")
-  result["description"] = description
-  result["link"] = fmt"https://github.com/{full_name}"
-  if len(repo_meta) < 1:
-    result["stars"] = "0"
-  else:
-    result["stars"] = repo_meta[0].innerText.strip()
-  if len(repo_meta) < 2:
-    result["forks"] = "0"
-  else:
-    result["forks"] = repo_meta[1].innerText.strip()
-  result["language_color"] = language_color
-  result["language"] = language
+  # Check for language existence
+  let languageNodes = n.nodeOfClass("d-inline-block")
+  let language = if languageNodes.len > 0: languageNodes[0].innerText.strip() else: ""
+
+  # Check for language color existence
+  let languageColorNodes = n.nodeOfClass("repo-language-color")
+  let language_color = if languageColorNodes.len > 0: languageColorNodes[0].attr("style").split(":")[1].strip() else: ""
+
+  if full_name != "":
+    result["full_name"] = full_name
+    result["repo"] = repo
+    result["description"] = description
+    result["link"] = fmt"https://github.com/{full_name}"
+    if repo_meta.len > 0:
+      result["stars"] = repo_meta[0].innerText.strip()
+    else:
+      result["stars"] = "0"
+    if repo_meta.len > 1:
+      result["forks"] = repo_meta[1].innerText.strip()
+    else:
+      result["forks"] = "0"
+    result["language_color"] = language_color
+    result["language"] = language
   return result
 
 type
