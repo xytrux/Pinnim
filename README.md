@@ -18,4 +18,4 @@ $ nim c -r -d:ssl main.nim
 ```
 
 ## Credits
-Credit to @graveflo and [@thrzl](https://github.com/thrzl) on Discord for helping me on this project
+Credit to [@graveflo](https://github.com/Graveflo) and [@thrzl](https://github.com/thrzl) on Discord for helping me on this project
